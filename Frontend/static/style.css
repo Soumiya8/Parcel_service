@@ -1,0 +1,143 @@
+:root {
+    --primary-blue: #2c3e50;
+    --bg-gray: #f4f7f6;
+    --white: #ffffff;
+    --success: #27ae60;
+    --error: #c0392b;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-gray);
+    margin: 0; padding: 0;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--primary-blue);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 50px;
+    align-items: center;
+}
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    padding-bottom: 5px;
+}
+.nav-links a.active { border-bottom: 2px solid white; }
+
+/* Layouts */
+.container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+.container-wide { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+.dashboard-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+    max-width: 1000px; 
+    margin: 40px auto;
+}
+
+/* Cards */
+.card, .table-card {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Forms & Inputs */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Crucial for padding */
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* Table */
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+th { background-color: #f8f9fa; }
+
+/* Utils */
+.hidden { display: none; }
+.full-width { grid-column: span 2; width: 100%; border: none; border-top: 1px solid #eee; }
+.result-area { margin-top: 15px; font-weight: bold; }
+/* --- Hero & Branding --- */
+.hero {
+    height: 60vh;
+    background: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.hero-overlay {
+    background: rgba(44, 62, 80, 0.8); /* Primary Blue Tint */
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.hero-content h1 { font-size: 3rem; margin-bottom: 15px; }
+
+.btn-main {
+    background: #3498db;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.btn-outline {
+    border: 2px solid white;
+    color: white;
+    padding: 12px 30px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+/* --- Stats Bar --- */
+.stats-bar {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 20px;
+    width: 80%;
+    margin: -30px auto 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    position: relative;
+}
+
+.stat-item strong { color: #2c3e50; font-size: 1.5rem; display: block; }
+
+/* --- General Layout --- */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
