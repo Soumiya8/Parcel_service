@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Management Portal | Parcel Service</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📦 Parcel<span>Service</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="management.html" class="active">Management</a>
+            <a href="track.html">Track</a>
+            <a href="deliveries.html">Deliveries</a>
+        </div>
+    </nav>
+
+    <main class="dashboard-container">
+        <section class="card">
+            <div class="card-header">
+                <h3>Add New Parcel</h3>
+                <p>Register a new shipment in the system.</p>
+            </div>
+            <form id="addParcelForm">
+                <input type="text" id="sname" placeholder="Sender Name" required>
+                <input type="text" id="saddr" placeholder="Sender Address" required>
+                <input type="text" id="sphone" placeholder="Sender Phone" required>
+                <hr>
+                <input type="text" id="rname" placeholder="Receiver Name" required>
+                <input type="text" id="raddr" placeholder="Receiver Address" required>
+                <input type="text" id="rphone" placeholder="Receiver Phone" required>
+                <button type="submit" class="btn-primary">Create Parcel</button>
+            </form>
+            <div id="addResult" class="result-area"></div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h3>Update Status</h3>
+                <p>Change parcel lifecycle state.</p>
+            </div>
+            <form id="updateStatusForm">
+                <input type="text" id="updateTrackingId" placeholder="Tracking ID (e.g. CHN0001)" required>
+                <select id="newStatus" required>
+                    <option value="" disabled selected>Select New Status</option>
+                    <option value="Dispatched">Dispatched</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Reached Destination">Reached Destination</option>
+                    <option value="Delivered">Delivered</option>
+                </select>
+                <button type="submit" class="btn-primary">Update Status</button>
+            </form>
+            <div id="updateResult" class="result-area"></div>
+        </section>
+    </main>
+    <script src="../static/script.js"></script>
+</body>
+</html>
