@@ -16,9 +16,7 @@ void employeeMenu() {
     int choice;
 
     while (1) {
-        printf("\n==============================");
-        printf("\n        EMPLOYEE PANEL        ");
-        printf("\n==============================");
+        printf("\n\n        EMPLOYEE PANEL        \n\n");
         printf("\n1. Add Parcel");
         printf("\n2. View All Parcels");
         printf("\n3. Save Data");
@@ -56,9 +54,7 @@ void loginSystem() {
     char username[20], password[20];
 
     while (1) {
-        printf("\n================================");
-        printf("\n     PARCEL SERVICE SYSTEM      ");
-        printf("\n================================");
+        printf("\n\n    PARCEL SERVICE SYSTEM      \n\n");
         printf("\n1. Employee Login");
         printf("\n2. Track Parcel");
         printf("\n3. Exit");
