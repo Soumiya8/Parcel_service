@@ -83,7 +83,7 @@ void DisplayParcels() {
 }
 
 void SaveToFile() {
-    FILE *fp = fopen("data.txt", "w");
+    FILE *fp = fopen("data.txt", "a");
 
     struct Parcel* temp = head;
 
