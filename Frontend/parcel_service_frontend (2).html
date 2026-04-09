@@ -1,59 +1,95 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcel Service</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); background: var(--color-background-tertiary); min-height: 100vh; }
+body { font-family: 'DM Sans', sans-serif; background: #f5f3ef; min-height: 100vh; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 20%, #ede9ff 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, #e0faf4 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 10%, #fff0ee 0%, transparent 40%);
+}
+
+body::after {
+  content: '"Every parcel tells a story."';
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #c0bbb4;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  z-index: -1;
+}
 
 .screen { display: none; padding: 1.5rem; }
 .screen.active { display: block; }
+#screen-home { padding-top: 2.5rem; }
+#screen-track, #screen-login, #screen-employee, #screen-add, #screen-view { padding-top: 2rem; }
 
-.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.5rem; max-width: 480px; margin: 0 auto; }
+.card { background: #ffffff; border: 1px solid #e8e4de; border-radius: 16px; padding: 1.5rem; max-width: 480px; margin: 0 auto; }
 
 .logo { text-align: center; margin-bottom: 1.5rem; }
-.logo-icon { width: 48px; height: 48px; background: #EEEDFE; border-radius: var(--border-radius-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; }
-.logo h1 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
-.logo p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.logo-icon { width: 48px; height: 48px; background: #EEEDFE; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; }
+.logo h1 { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+.logo p { font-size: 13px; color: #8a8680; margin-top: 4px; }
 
-.menu-btn { width: 100%; padding: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 15px; cursor: pointer; margin-bottom: 10px; text-align: left; display: flex; align-items: center; gap: 12px; transition: background 0.15s; }
-.menu-btn:hover { background: var(--color-background-secondary); }
+.menu-btn { width: 100%; padding: 12px; border: 1px solid #e8e4de; border-radius: 10px; background: #ffffff; color: #1a1a1a; font-size: 15px; cursor: pointer; margin-bottom: 10px; text-align: left; display: flex; align-items: center; gap: 12px; transition: background 0.15s, border-color 0.15s; font-family: 'DM Sans', sans-serif; }
+.menu-btn:hover { background: #f5f3ef; border-color: #2d2d2d; }
 .menu-btn .icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 .page-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-.back-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 13px; padding: 4px 8px; border-radius: var(--border-radius-md); }
-.back-btn:hover { background: var(--color-background-secondary); }
-.page-header h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.back-btn { background: none; border: 1px solid #e8e4de; cursor: pointer; color: #8a8680; font-size: 13px; padding: 4px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; }
+.back-btn:hover { background: #f5f3ef; }
+.page-header h2 { font-size: 16px; font-weight: 600; color: #1a1a1a; }
 
-label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; margin-top: 12px; }
-input[type=text], input[type=password] { width: 100%; padding: 9px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 14px; }
-input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDFE; }
+label { display: block; font-size: 11px; font-weight: 600; color: #8a8680; margin-bottom: 4px; margin-top: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+input[type=text], input[type=password] { width: 100%; padding: 10px 14px; border: 1px solid #e8e4de; border-radius: 10px; background: #f5f3ef; color: #1a1a1a; font-size: 14px; font-family: 'DM Sans', sans-serif; }
+input:focus { outline: none; border-color: #6c5ce7; box-shadow: 0 0 0 3px #ede9ff; background: #fff; }
+input::placeholder { color: #c0bbb4; }
 
-.section-label { font-size: 12px; font-weight: 500; color: #7F77DD; text-transform: uppercase; letter-spacing: 0.05em; margin: 1.25rem 0 0.25rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.section-label { font-size: 11px; font-weight: 600; color: #6c5ce7; text-transform: uppercase; letter-spacing: 0.08em; margin: 1.25rem 0 0.25rem; padding-bottom: 6px; border-bottom: 1px solid #e8e4de; }
 
-.submit-btn { width: 100%; padding: 11px; margin-top: 1.25rem; background: #534AB7; color: #fff; border: none; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; }
-.submit-btn:hover { background: #3C3489; }
+.submit-btn { width: 100%; padding: 12px; margin-top: 1.25rem; background: #2d2d2d; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .15s; }
+.submit-btn:hover { opacity: .82; }
 
-.alert { padding: 10px 14px; border-radius: var(--border-radius-md); font-size: 13px; margin-bottom: 1rem; display: none; }
-.alert.error { background: var(--color-background-danger); color: var(--color-text-danger); border: 0.5px solid var(--color-border-danger); }
-.alert.success { background: var(--color-background-success); color: var(--color-text-success); border: 0.5px solid var(--color-border-success); }
+.alert { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 1rem; display: none; }
+.alert.error { background: #fff0ee; color: #c0392b; border: 1px solid #fad4ce; }
+.alert.success { background: #e0faf4; color: #00796b; border: 1px solid #b2dfdb; }
 
-.tracking-result { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 1rem; display: none; }
+.tracking-result { background: #f5f3ef; border-radius: 12px; padding: 1rem; margin-top: 1rem; display: none; }
 .tracking-result .tid { font-size: 13px; font-weight: 500; color: #534AB7; margin-bottom: 10px; }
-.detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e8e4de; font-size: 13px; }
 .detail-row:last-child { border-bottom: none; }
-.detail-row span:first-child { color: var(--color-text-secondary); }
-.detail-row span:last-child { color: var(--color-text-primary); font-weight: 500; text-align: right; max-width: 60%; }
+.detail-row span:first-child { color: #8a8680; }
+.detail-row span:last-child { color: #1a1a1a; font-weight: 500; text-align: right; max-width: 60%; }
 
-.status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #E1F5EE; color: #0F6E56; }
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; background: #e0faf4; color: #0F6E56; }
 
-.emp-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; max-width: 520px; margin: 0 auto; }
+.emp-card { background: #ffffff; border: 1px solid #e8e4de; border-radius: 16px; padding: 1.25rem; max-width: 520px; margin: 0 auto; }
 .emp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-.emp-header h2 { font-size: 15px; font-weight: 500; }
-.logout-btn { font-size: 12px; color: var(--color-text-secondary); background: none; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; cursor: pointer; }
-.logout-btn:hover { background: var(--color-background-secondary); }
+.emp-header h2 { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+.logout-btn { font-size: 12px; color: #8a8680; background: none; border: 1px solid #e8e4de; border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.logout-btn:hover { background: #f5f3ef; }
 
-.attempts { font-size: 12px; color: var(--color-text-secondary); text-align: center; margin-top: 8px; }
+.attempts { font-size: 12px; color: #8a8680; text-align: center; margin-top: 8px; }
 </style>
+</head>
+<body>
 
-<div id="screen-home" class="screen active" style="padding-top: 2.5rem;">
+<div id="screen-home" class="screen active">
   <div class="card">
     <div class="logo">
       <div class="logo-icon">
@@ -62,30 +98,28 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
       <h1>Parcel Service</h1>
       <p>Dispatch management system</p>
     </div>
-
     <button class="menu-btn" onclick="showScreen('screen-track')">
       <div class="icon" style="background:#E1F5EE;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
       <div>
         <div style="font-size:14px;">Track a parcel</div>
-        <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">Enter tracking ID to view status</div>
+        <div style="font-size:12px;color:#8a8680;margin-top:2px;">Enter tracking ID to view status</div>
       </div>
     </button>
-
     <button class="menu-btn" onclick="showScreen('screen-login')">
       <div class="icon" style="background:#EEEDFE;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div>
         <div style="font-size:14px;">Employee login</div>
-        <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">Add parcels, view records, save data</div>
+        <div style="font-size:12px;color:#8a8680;margin-top:2px;">Add parcels, view records, save data</div>
       </div>
     </button>
   </div>
 </div>
 
-<div id="screen-track" class="screen" style="padding-top: 2rem;">
+<div id="screen-track" class="screen">
   <div class="card">
     <div class="page-header">
       <button class="back-btn" onclick="showScreen('screen-home')">← back</button>
@@ -95,7 +129,6 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
     <label>Tracking ID</label>
     <input type="text" id="track-input" placeholder="e.g. 1001" />
     <button class="submit-btn" onclick="handleTrack()">Search</button>
-
     <div class="tracking-result" id="track-result">
       <div class="tid" id="result-tid"></div>
       <div class="section-label" style="margin-top:0;">Sender</div>
@@ -107,12 +140,12 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
       <div class="detail-row"><span>Address</span><span id="r-raddr"></span></div>
       <div class="detail-row"><span>Contact</span><span id="r-rcontact"></span></div>
       <div class="section-label">Status</div>
-      <div style="padding: 6px 0;"><span class="status-badge" id="r-status"></span></div>
+      <div style="padding:6px 0;"><span class="status-badge" id="r-status"></span></div>
     </div>
   </div>
 </div>
 
-<div id="screen-login" class="screen" style="padding-top: 2rem;">
+<div id="screen-login" class="screen">
   <div class="card">
     <div class="page-header">
       <button class="back-btn" onclick="showScreen('screen-home')">← back</button>
@@ -128,39 +161,35 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
   </div>
 </div>
 
-<div id="screen-employee" class="screen" style="padding-top: 2rem;">
+<div id="screen-employee" class="screen">
   <div class="emp-card">
     <div class="emp-header">
       <h2>Employee panel</h2>
       <button class="logout-btn" onclick="handleLogout()">logout</button>
     </div>
-
     <button class="menu-btn" onclick="showScreen('screen-add')">
       <div class="icon" style="background:#EEEDFE;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </div>
-      <div><div style="font-size:14px;">Add parcel</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">Register a new dispatch</div></div>
+      <div><div style="font-size:14px;">Add parcel</div><div style="font-size:12px;color:#8a8680;margin-top:2px;">Register a new dispatch</div></div>
     </button>
-
     <button class="menu-btn" onclick="showScreen('screen-view')">
       <div class="icon" style="background:#E1F5EE;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       </div>
-      <div><div style="font-size:14px;">View all parcels</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">See all registered parcels</div></div>
+      <div><div style="font-size:14px;">View all parcels</div><div style="font-size:12px;color:#8a8680;margin-top:2px;">See all registered parcels</div></div>
     </button>
-
     <button class="menu-btn" onclick="handleSave()">
       <div class="icon" style="background:#FAEEDA;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 0-2-2V5a2 2 0 0 0 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       </div>
-      <div><div style="font-size:14px;">Save data to file</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">Persist all records to data.txt</div></div>
+      <div><div style="font-size:14px;">Save data to file</div><div style="font-size:12px;color:#8a8680;margin-top:2px;">Persist all records to data.txt</div></div>
     </button>
-
     <div id="save-alert" class="alert success" style="margin-top:10px;"></div>
   </div>
 </div>
 
-<div id="screen-add" class="screen" style="padding-top: 2rem;">
+<div id="screen-add" class="screen">
   <div class="card">
     <div class="page-header">
       <button class="back-btn" onclick="showScreen('screen-employee')">← back</button>
@@ -168,22 +197,19 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
     </div>
     <div id="add-alert" class="alert error"></div>
     <div id="add-success" class="alert success"></div>
-
     <div class="section-label" style="margin-top:0;">Sender details</div>
     <label>Name</label><input type="text" id="sname" placeholder="Full name" />
     <label>Address</label><input type="text" id="saddr" placeholder="Full address" />
     <label>Contact</label><input type="text" id="sphone" placeholder="Phone number" />
-
     <div class="section-label">Receiver details</div>
     <label>Name</label><input type="text" id="rname" placeholder="Full name" />
     <label>Address</label><input type="text" id="raddr" placeholder="Full address" />
     <label>Contact</label><input type="text" id="rphone" placeholder="Phone number" />
-
     <button class="submit-btn" onclick="handleAddParcel()">Register parcel</button>
   </div>
 </div>
 
-<div id="screen-view" class="screen" style="padding-top: 2rem;">
+<div id="screen-view" class="screen">
   <div class="card" style="max-width:560px;">
     <div class="page-header">
       <button class="back-btn" onclick="showScreen('screen-employee')">← back</button>
@@ -194,9 +220,7 @@ input:focus { outline: none; border-color: #7F77DD; box-shadow: 0 0 0 2px #EEEDF
 </div>
 
 <script>
-let attempts = 3;
-let parcels = [];
-let nextID = 1000;
+let attempts = 3, parcels = [], nextID = 1000;
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -206,60 +230,37 @@ function showScreen(id) {
 
 function showAlert(id, msg, type) {
   const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'alert ' + type;
-  el.style.display = 'block';
+  el.textContent = msg; el.className = 'alert ' + type; el.style.display = 'block';
 }
-
-function hideAlert(id) {
-  document.getElementById(id).style.display = 'none';
-}
+function hideAlert(id) { document.getElementById(id).style.display = 'none'; }
 
 function handleLogin() {
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value.trim();
   if (user === 'admin' && pass === '1234') {
-    attempts = 3;
-    hideAlert('login-alert');
+    attempts = 3; hideAlert('login-alert');
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
     showScreen('screen-employee');
   } else {
     attempts--;
-    if (attempts <= 0) {
-      showAlert('login-alert', 'Too many failed attempts. Go back and try again.', 'error');
-      attempts = 3;
-    } else {
-      showAlert('login-alert', 'Invalid credentials.', 'error');
-      document.getElementById('attempts-text').textContent = attempts + ' attempt' + (attempts === 1 ? '' : 's') + ' remaining';
-    }
+    if (attempts <= 0) { showAlert('login-alert', 'Too many failed attempts. Go back and try again.', 'error'); attempts = 3; }
+    else { showAlert('login-alert', 'Invalid credentials.', 'error'); }
+    document.getElementById('attempts-text').textContent = attempts + ' attempt' + (attempts === 1 ? '' : 's') + ' remaining';
   }
 }
 
-function handleLogout() {
-  showScreen('screen-home');
-}
+function handleLogout() { showScreen('screen-home'); }
 
 function handleAddParcel() {
-  hideAlert('add-alert');
-  hideAlert('add-success');
+  hideAlert('add-alert'); hideAlert('add-success');
   const fields = ['sname','saddr','sphone','rname','raddr','rphone'];
   for (let f of fields) {
-    if (!document.getElementById(f).value.trim()) {
-      showAlert('add-alert', 'All fields are required.', 'error');
-      return;
-    }
+    if (!document.getElementById(f).value.trim()) { showAlert('add-alert', 'All fields are required.', 'error'); return; }
   }
-  const p = {
-    id: nextID++,
-    sname: document.getElementById('sname').value.trim(),
-    saddr: document.getElementById('saddr').value.trim(),
-    sphone: document.getElementById('sphone').value.trim(),
-    rname: document.getElementById('rname').value.trim(),
-    raddr: document.getElementById('raddr').value.trim(),
-    rphone: document.getElementById('rphone').value.trim(),
-    status: 'Dispatched'
-  };
+  const p = { id: nextID++ };
+  fields.forEach(f => p[f] = document.getElementById(f).value.trim());
+  p.status = 'Dispatched';
   parcels.push(p);
   fields.forEach(f => document.getElementById(f).value = '');
   showAlert('add-success', 'Parcel registered! Tracking ID: ' + p.id, 'success');
@@ -286,19 +287,15 @@ function handleTrack() {
 function handleSave() {
   const el = document.getElementById('save-alert');
   el.textContent = parcels.length + ' record(s) saved to data.txt via C backend.';
-  el.className = 'alert success';
-  el.style.display = 'block';
+  el.className = 'alert success'; el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3000);
 }
 
 function renderParcelList() {
   const el = document.getElementById('parcel-list');
-  if (parcels.length === 0) {
-    el.innerHTML = '<p style="font-size:13px;color:var(--color-text-secondary);text-align:center;padding:1rem 0;">No parcels registered yet.</p>';
-    return;
-  }
+  if (!parcels.length) { el.innerHTML = '<p style="font-size:13px;color:#8a8680;text-align:center;padding:1rem 0;">No parcels registered yet.</p>'; return; }
   el.innerHTML = parcels.map(p => `
-    <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:10px;">
+    <div style="border:1px solid #e8e4de;border-radius:12px;padding:12px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:13px;font-weight:500;color:#534AB7;">ID: ${p.id}</span>
         <span class="status-badge">${p.status}</span>
@@ -306,7 +303,8 @@ function renderParcelList() {
       <div class="detail-row"><span>Sender</span><span>${p.sname}</span></div>
       <div class="detail-row"><span>Receiver</span><span>${p.rname}</span></div>
       <div class="detail-row" style="border-bottom:none;"><span>Destination</span><span>${p.raddr}</span></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 </script>
+</body>
+</html>
