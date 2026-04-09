@@ -105,3 +105,49 @@ void SaveToFile() {
     fclose(fp);
     printf("\nData saved to file.\n");
 }
+void LoadFromFile() {
+    FILE *fp = fopen("data.txt", "r");
+
+    if (fp == NULL) {
+        printf("No existing data file found.\n");
+        return;
+    }
+
+    while (1) {
+        struct Parcel* temp = (struct Parcel*)malloc(sizeof(struct Parcel));
+
+        if (temp == NULL) {
+            printf("Memory allocation failed\n");
+            return;
+        }
+
+        int result = fscanf(fp,
+            "%d|%49[^|]|%99[^|]|%14[^|]|%49[^|]|%99[^|]|%14[^|]|%49[^\n]\n",
+            &temp->trackingID,
+            temp->senderName,
+            temp->senderAddress,
+            temp->senderContact,
+            temp->receiverName,
+            temp->receiverAddress,
+            temp->receiverContact,
+            temp->status
+        );
+
+        if (result != 8) {
+            free(temp);
+            break;
+        }
+
+        // insert node into linked list
+        temp->next = head;
+        head = temp;
+
+        // update tracking ID counter
+        if (temp->trackingID >= currentID) {
+            currentID = temp->trackingID + 1;
+        }
+    }
+
+    fclose(fp);
+    printf("Data loaded successfully.\n");
+}

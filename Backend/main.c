@@ -108,5 +108,6 @@ void loginSystem() {
 
 int main() {
     loginSystem();
+    LoadFromFile();
     return 0;
 }
