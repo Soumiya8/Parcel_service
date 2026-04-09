@@ -74,8 +74,8 @@ void loginSystem() {
                     printf("Password: ");
                     scanf("%s", password);
 
-                    if (strcmp(username, "admin") == 0 &&
-                        strcmp(password, "1234") == 0) {
+                    if (strcmp(username, "shweta_admin") == 0 &&
+                        strcmp(password, "79710616") == 0) {
 
                         printf("\nLogin successful! Welcome, %s\n", username);
                         employeeMenu();
