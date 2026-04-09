@@ -37,3 +37,40 @@ void InsertParcel() {
 
     printf("\nParcel Created! Tracking ID: %d\n", temp->trackingID);
 }
+
+void DisplayParcels() {
+    struct Parcel* temp = head;
+
+    while (temp != NULL) {
+        printf("\nTracking ID: %d", temp->trackingID);
+        printf("\nSender: %s", temp->senderName);
+        printf("\nReceiver: %s", temp->receiverName);
+        printf("\nStatus: %s\n", temp->status);
+
+        temp = temp->next;
+    }
+}
+
+void SaveToFile() {
+    FILE *fp = fopen("data.txt", "w");
+
+    struct Parcel* temp = head;
+
+    while (temp != NULL) {
+        fprintf(fp, "%d|%s|%s|%s|%s|%s|%s|%s\n",
+            temp->trackingID,
+            temp->senderName,
+            temp->senderAddress,
+            temp->senderContact,
+            temp->receiverName,
+            temp->receiverAddress,
+            temp->receiverContact,
+            temp->status
+        );
+
+        temp = temp->next;
+    }
+
+    fclose(fp);
+    printf("\nData saved to file.\n");
+}
