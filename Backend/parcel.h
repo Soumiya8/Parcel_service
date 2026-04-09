@@ -20,5 +20,6 @@ extern struct Parcel* head;
 void InsertParcel();
 void DisplayParcels();
 void SaveToFile();
+void trackParcel(int id);
 
 #endif

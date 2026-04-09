@@ -37,6 +37,37 @@ void InsertParcel() {
 
     printf("\nParcel Created! Tracking ID: %d\n", temp->trackingID);
 }
+void trackParcel(int id) {
+    struct Parcel* temp = head;
+
+    while (temp != NULL) {
+        if (temp->trackingID == id) {
+
+            printf("\n\n      PARCEL DETAILS         \n\n");
+
+
+            printf("\nTracking ID: %d", temp->trackingID);
+
+            printf("\n\n--- Sender Details ---");
+            printf("\nName: %s", temp->senderName);
+            printf("\nAddress: %s", temp->senderAddress);
+            printf("\nContact: %s", temp->senderContact);
+
+            printf("\n\n--- Receiver Details ---");
+            printf("\nName: %s", temp->receiverName);
+            printf("\nAddress: %s", temp->receiverAddress);
+            printf("\nContact: %s", temp->receiverContact);
+
+            printf("\n\nStatus: %s\n", temp->status);
+
+            return;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("\n Parcel not found with Tracking ID: %d\n", id);
+}
 
 void DisplayParcels() {
     struct Parcel* temp = head;
