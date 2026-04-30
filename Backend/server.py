@@ -179,6 +179,12 @@ def create_flask_app():
     def frontend_alias(filename):
         return send_from_directory(FRONTEND_DIR, filename)
 
+    @app.route("/api/add", methods=["POST"])
+    def api_add():
+        data = request.get_json(silent=True) or {}
+        payload, status = handle_api("POST", "/api/add", data)
+        return jsonify(payload), status
+
     @app.route("/api/<path:api_path>", methods=["GET", "POST"])
     def api_router(api_path):
         data = request.get_json(silent=True) or {}

@@ -375,8 +375,20 @@ async function addParcel(event) {
   };
 
   try {
-    const data = await postJson("/api/add", payload);
+    setLoading(true);
+    console.log(payload);
+    const response = await fetch("/api/add", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
     console.log(data);
+
+    if (!response.ok || data.success === false) {
+      throw data;
+    }
+
     form.reset();
     updateRouteSuggestions();
     renderTrackedParcel(data.parcel, adminTrackResult);
@@ -386,6 +398,8 @@ async function addParcel(event) {
     console.log("Create Parcel failed", error);
     showCreateMessage(error.error || "Parcel creation failed.", "error");
     showError(error);
+  } finally {
+    setLoading(false);
   }
 }
 
