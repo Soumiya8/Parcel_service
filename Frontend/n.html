@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcel Service System</title>
+
+<style>
+:root {
+  --bg: #eef3f7;
+  --panel: #ffffff;
+  --ink: #1c2430;
+  --muted: #687487;
+  --line: #d9e1ea;
+  --primary: #1967d2;
+  --primary-dark: #124f9f;
+  --success-bg: #dff7e8;
+  --success-text: #11633a;
+  --danger-bg: #fde2e2;
+  --danger-text: #9f1d1d;
+  --warn-bg: #fff3cc;
+  --warn-text: #815b00;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-shell {
+  width: 96%;
+  max-width: 1260px;
+  margin: 24px auto 40px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.topbar h1 {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.topbar p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.server-pill {
+  min-width: 170px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 8px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 700;
+}
+
+.server-pill.online {
+  color: var(--success-text);
+  border-color: #a8dfbd;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.stat span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.stat strong {
+  font-size: 25px;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.nav button,
+.action-row button,
+.icon-action,
+button {
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.nav button {
+  width: auto;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: #263445;
+  color: white;
+}
+
+.nav button.active {
+  background: var(--primary);
+}
+
+.panel {
+  background: var(--panel);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel h2 {
+  font-size: 21px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  gap: 10px;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  font-size: 15px;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid #9cc3f6;
+  border-color: var(--primary);
+}
+
+.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.primary:hover {
+  background: var(--primary-dark);
+}
+
+.secondary {
+  background: #eef3f7;
+  color: var(--ink);
+}
+
+.danger-button {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.action-row button {
+  width: auto;
+  min-width: 145px;
+}
+
+.result {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 14px;
+  border-left: 5px solid var(--primary);
+  line-height: 1.65;
+}
+
+.hidden {
+  display: none;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #dcecff;
+  color: #174f91;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.danger {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.warning {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f3f6fa;
+  color: #354255;
+  font-size: 13px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.icon-action {
+  width: auto;
+  padding: 7px 9px;
+  border-radius: 7px;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+.empty {
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media(max-width: 980px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width: 700px) {
+  .topbar,
+  .panel-header,
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats-grid,
+  .grid,
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .action-row button,
+  .nav button {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="app-shell">
+  <header class="topbar">
+    <div>
+      <h1>Parcel Service Management System</h1>
+      <p>Manage parcel creation, tracking, route-based driver assignment, emergency delivery handling, and delivery records.</p>
+    </div>
+    <div id="serverStatus" class="server-pill">Checking API</div>
+  </header>
+
+  <section class="stats-grid" aria-label="Parcel summary">
+    <div class="stat"><span>Total Parcels</span><strong id="statTotal">0</strong></div>
+    <div class="stat"><span>Active</span><strong id="statActive">0</strong></div>
+    <div class="stat"><span>Delivered</span><strong id="statDelivered">0</strong></div>
+    <div class="stat"><span>Urgent</span><strong id="statUrgent">0</strong></div>
+    <div class="stat"><span>Failed/Escalated</span><strong id="statFailed">0</strong></div>
+    <div class="stat"><span>Busiest Route</span><strong id="statRoute">None</strong></div>
+  </section>
+
+  <nav class="nav" aria-label="Main sections">
+    <button id="navAdd" class="active" onclick="showSection('addSection')">Create Parcel</button>
+    <button id="navTrack" onclick="showSection('trackSection')">Track Parcel</button>
+    <button id="navUpdate" onclick="showSection('updateSection')">Update Status</button>
+    <button id="navRecords" onclick="showSection('recordsSection'); loadParcels();">Delivery Records</button>
+  </nav>
+
+  <section id="addSection" class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Create New Parcel</h2>
+        <p class="hint">Road route and date are used to reuse drivers for grouped deliveries.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <input id="sname" placeholder="Sender Name">
+      <input id="sphone" placeholder="Sender Contact">
+      <input id="saddr" placeholder="Sender Address">
+      <input id="rname" placeholder="Receiver Name">
+      <input id="rphone" placeholder="Receiver Contact">
+      <input id="raddr" placeholder="Receiver Address">
+      <input id="office" placeholder="Destination Office">
+      <input id="date" placeholder="Delivery Date DD-MM-YYYY">
+      <input id="route" placeholder="Road Route / Area e.g. OMR, ECR, GST">
+      <select id="priority">
+        <option value="1">Normal Priority</option>
+        <option value="2">Urgent Priority</option>
+      </select>
+    </div>
+
+    <div class="action-row">
+      <button class="primary" onclick="addParcel()">Register Parcel</button>
+      <button class="secondary" onclick="clearCreateForm()">Clear Form</button>
+    </div>
+
+    <div id="addResult" class="result hidden"></div>
+  </section>
+
+  <section id="trackSection" class="panel hidden">
+    <div class="panel-header">
+      <div>
+        <h2>Track Parcel</h2>
+        <p class="hint">Enter a tracking ID to view full shipment details.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <input id="trackId" placeholder="Enter Tracking ID">
+      <button class="primary" onclick="trackParcel()">Track</button>
+    </div>
+
+    <div id="trackResult" class="result hidden"></div>
+  </section>
+
+  <section id="updateSection" class="panel hidden">
+    <div class="panel-header">
+      <div>
+        <h2>Update Parcel Status</h2>
+        <p class="hint">Failed deliveries automatically increase attempts and can escalate priority.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <input id="updateId" placeholder="Enter Tracking ID">
+      <select id="newStatus">
+        <option value="Dispatched">Dispatched</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Reached Destination Office">Reached Destination Office</option>
+        <option value="Out for Delivery">Out for Delivery</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Delivery Failed">Delivery Failed</option>
+      </select>
+    </div>
+
+    <div class="action-row">
+      <button class="primary" onclick="updateStatus()">Update Status</button>
+    </div>
+
+    <div id="updateResult" class="result hidden"></div>
+  </section>
+
+  <section id="recordsSection" class="panel hidden">
+    <div class="panel-header">
+      <div>
+        <h2>Delivery Records</h2>
+        <p class="hint">Search, filter, export, track, update, or delete parcel records.</p>
+      </div>
+      <div class="action-row">
+        <button class="secondary" onclick="exportCsv()">Export CSV</button>
+        <button class="primary" onclick="loadParcels()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input id="filterSearch" placeholder="Search ID, sender, receiver, route">
+      <input id="filterLocation" placeholder="Destination Office">
+      <input id="filterDate" placeholder="Date DD-MM-YYYY">
+      <select id="filterStatus">
+        <option value="">All Statuses</option>
+        <option value="Dispatched">Dispatched</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Reached Destination Office">Reached Destination Office</option>
+        <option value="Out for Delivery">Out for Delivery</option>
+        <option value="Delivered">Delivered</option>
+        <option value="Delivery Failed - Rescheduled">Delivery Failed - Rescheduled</option>
+        <option value="Urgent Attention Needed">Urgent Attention Needed</option>
+        <option value="Escalated to Office Manager">Escalated to Office Manager</option>
+      </select>
+      <select id="filterPriority">
+        <option value="">All Priorities</option>
+        <option value="1">Normal</option>
+        <option value="2">Urgent</option>
+      </select>
+    </div>
+
+    <div class="action-row">
+      <button class="primary" onclick="loadParcels()">Apply Filters</button>
+      <button class="secondary" onclick="resetFilters()">Reset Filters</button>
+    </div>
+
+    <div id="recordsList"></div>
+  </section>
+</main>
+
+<script>
+const API = window.location.protocol === "file:"
+  ? "http://127.0.0.1:5000"
+  : window.location.origin;
+
+let currentParcels = [];
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function showSection(id) {
+  ["addSection", "trackSection", "updateSection", "recordsSection"].forEach(sectionId => {
+    document.getElementById(sectionId).classList.add("hidden");
+  });
+
+  ["navAdd", "navTrack", "navUpdate", "navRecords"].forEach(navId => {
+    document.getElementById(navId).classList.remove("active");
+  });
+
+  const navMap = {
+    addSection: "navAdd",
+    trackSection: "navTrack",
+    updateSection: "navUpdate",
+    recordsSection: "navRecords"
+  };
+
+  document.getElementById(id).classList.remove("hidden");
+  document.getElementById(navMap[id]).classList.add("active");
+}
+
+function showBox(id, html) {
+  const box = document.getElementById(id);
+  box.innerHTML = html;
+  box.classList.remove("hidden");
+}
+
+async function requestJson(url, options) {
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed");
+  }
+
+  return data;
+}
+
+function getStatusBadge(status) {
+  const safeStatus = escapeHtml(status);
+
+  if (status.includes("Failed") || status.includes("Escalated")) {
+    return `<span class="badge danger">${safeStatus}</span>`;
+  }
+
+  if (status === "Delivered") {
+    return `<span class="badge success">${safeStatus}</span>`;
+  }
+
+  if (status.includes("Urgent")) {
+    return `<span class="badge warning">${safeStatus}</span>`;
+  }
+
+  return `<span class="badge">${safeStatus}</span>`;
+}
+
+function getPriorityBadge(priority) {
+  return priority == "2"
+    ? `<span class="badge warning">Urgent</span>`
+    : `<span class="badge">Normal</span>`;
+}
+
+function isValidDate(value) {
+  return /^\d{2}-\d{2}-\d{4}$/.test(value);
+}
+
+async function loadStats() {
+  try {
+    const stats = await requestJson(`${API}/stats`);
+    document.getElementById("statTotal").textContent = stats.total;
+    document.getElementById("statActive").textContent = stats.active;
+    document.getElementById("statDelivered").textContent = stats.delivered;
+    document.getElementById("statUrgent").textContent = stats.urgent;
+    document.getElementById("statFailed").textContent = stats.failed;
+    document.getElementById("statRoute").textContent = stats.busiestRoute;
+    document.getElementById("serverStatus").textContent = "API Online";
+    document.getElementById("serverStatus").classList.add("online");
+  } catch (error) {
+    document.getElementById("serverStatus").textContent = "API Offline";
+    document.getElementById("serverStatus").classList.remove("online");
+  }
+}
+
+function collectParcelForm() {
+  return {
+    sname: document.getElementById("sname").value.trim(),
+    saddr: document.getElementById("saddr").value.trim(),
+    sphone: document.getElementById("sphone").value.trim(),
+    rname: document.getElementById("rname").value.trim(),
+    raddr: document.getElementById("raddr").value.trim(),
+    rphone: document.getElementById("rphone").value.trim(),
+    office: document.getElementById("office").value.trim(),
+    date: document.getElementById("date").value.trim(),
+    route: document.getElementById("route").value.trim(),
+    priority: document.getElementById("priority").value
+  };
+}
+
+function clearCreateForm() {
+  ["sname", "saddr", "sphone", "rname", "raddr", "rphone", "office", "date", "route"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("priority").value = "1";
+  document.getElementById("addResult").classList.add("hidden");
+}
+
+async function addParcel() {
+  const parcel = collectParcelForm();
+
+  for (let key in parcel) {
+    if (!parcel[key]) {
+      alert("Please fill all fields");
+      return;
+    }
+  }
+
+  if (!isValidDate(parcel.date)) {
+    alert("Delivery date must be in DD-MM-YYYY format");
+    return;
+  }
+
+  try {
+    const data = await requestJson(`${API}/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parcel)
+    });
+
+    showBox("addResult", `
+      <h3>Parcel Registered Successfully</h3>
+      <p><b>Tracking ID:</b> ${escapeHtml(data.trackingID)}</p>
+      <p><b>Assigned Driver:</b> ${escapeHtml(data.driver)}</p>
+      <p><b>Route Logic:</b> Parcels on the same road and date are assigned to the same driver.</p>
+    `);
+    await loadStats();
+  } catch (error) {
+    showBox("addResult", `<p>${escapeHtml(error.message)}</p>`);
+  }
+}
+
+async function trackParcel(idFromAction) {
+  const id = String(idFromAction || document.getElementById("trackId").value).trim();
+
+  if (!id) {
+    alert("Enter tracking ID");
+    return;
+  }
+
+  try {
+    const data = await requestJson(`${API}/track/${encodeURIComponent(id)}`);
+    document.getElementById("trackId").value = id;
+    showSection("trackSection");
+
+    showBox("trackResult", `
+      <h3>Tracking Details</h3>
+      <p><b>Tracking ID:</b> ${escapeHtml(data.id)}</p>
+      <p><b>Status:</b> ${getStatusBadge(data.status)}</p>
+      <p><b>Sender:</b> ${escapeHtml(data.sname)} | ${escapeHtml(data.sphone)}</p>
+      <p><b>Sender Address:</b> ${escapeHtml(data.saddr)}</p>
+      <p><b>Receiver:</b> ${escapeHtml(data.rname)} | ${escapeHtml(data.rphone)}</p>
+      <p><b>Receiver Address:</b> ${escapeHtml(data.raddr)}</p>
+      <p><b>Destination Office:</b> ${escapeHtml(data.office)}</p>
+      <p><b>Delivery Date:</b> ${escapeHtml(data.date)}</p>
+      <p><b>Route:</b> ${escapeHtml(data.route)}</p>
+      <p><b>Assigned Driver:</b> ${escapeHtml(data.driver)}</p>
+      <p><b>Priority:</b> ${getPriorityBadge(data.priority)}</p>
+      <p><b>Failed Attempts:</b> ${escapeHtml(data.failedAttempts)}</p>
+    `);
+  } catch (error) {
+    showBox("trackResult", `<p>Parcel not found.</p>`);
+  }
+}
+
+async function updateStatus(idFromAction, statusFromAction) {
+  const id = String(idFromAction || document.getElementById("updateId").value).trim();
+  const status = statusFromAction || document.getElementById("newStatus").value;
+
+  if (!id) {
+    alert("Enter tracking ID");
+    return;
+  }
+
+  try {
+    const data = await requestJson(`${API}/update-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status })
+    });
+    const parcel = data.parcel;
+
+    document.getElementById("updateId").value = id;
+    document.getElementById("newStatus").value = status;
+
+    showBox("updateResult", `
+      <h3>Status Updated</h3>
+      <p><b>Tracking ID:</b> ${escapeHtml(parcel.id)}</p>
+      <p><b>New Status:</b> ${getStatusBadge(parcel.status)}</p>
+      <p><b>Failed Attempts:</b> ${escapeHtml(parcel.failedAttempts)}</p>
+      <p><b>Priority:</b> ${getPriorityBadge(parcel.priority)}</p>
+    `);
+
+    await loadStats();
+    if (!document.getElementById("recordsSection").classList.contains("hidden")) {
+      await loadParcels();
+    }
+  } catch (error) {
+    showBox("updateResult", `<p>${escapeHtml(error.message)}</p>`);
+  }
+}
+
+function buildQuery() {
+  const params = new URLSearchParams();
+  const fields = {
+    search: document.getElementById("filterSearch").value.trim(),
+    location: document.getElementById("filterLocation").value.trim(),
+    date: document.getElementById("filterDate").value.trim(),
+    status: document.getElementById("filterStatus").value,
+    priority: document.getElementById("filterPriority").value
+  };
+
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+
+  return params.toString();
+}
+
+async function loadParcels() {
+  const query = buildQuery();
+  const url = query ? `${API}/parcels?${query}` : `${API}/parcels`;
+
+  try {
+    currentParcels = await requestJson(url);
+    renderRecords(currentParcels);
+  } catch (error) {
+    document.getElementById("recordsList").innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function renderRecords(parcels) {
+  const list = document.getElementById("recordsList");
+
+  if (parcels.length === 0) {
+    list.innerHTML = `<div class="empty">No records found.</div>`;
+    return;
+  }
+
+  list.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Destination</th>
+            <th>Date</th>
+            <th>Route</th>
+            <th>Driver</th>
+            <th>Priority</th>
+            <th>Attempts</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${parcels.map(parcel => `
+            <tr>
+              <td>${escapeHtml(parcel.id)}</td>
+              <td>${getStatusBadge(parcel.status)}</td>
+              <td>${escapeHtml(parcel.sname)}<br><span class="hint">${escapeHtml(parcel.sphone)}</span></td>
+              <td>${escapeHtml(parcel.rname)}<br><span class="hint">${escapeHtml(parcel.rphone)}</span></td>
+              <td>${escapeHtml(parcel.office)}</td>
+              <td>${escapeHtml(parcel.date)}</td>
+              <td>${escapeHtml(parcel.route)}</td>
+              <td>${escapeHtml(parcel.driver)}</td>
+              <td>${getPriorityBadge(parcel.priority)}</td>
+              <td>${escapeHtml(parcel.failedAttempts)}</td>
+              <td>
+                <button class="icon-action secondary" onclick="trackParcel('${escapeHtml(parcel.id)}')">View</button>
+                <button class="icon-action primary" onclick="quickDeliver('${escapeHtml(parcel.id)}')">Deliver</button>
+                <button class="icon-action danger-button" onclick="deleteParcel('${escapeHtml(parcel.id)}')">Delete</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function quickDeliver(id) {
+  await updateStatus(id, "Delivered");
+}
+
+async function deleteParcel(id) {
+  if (!confirm(`Delete parcel ${id}?`)) {
+    return;
+  }
+
+  try {
+    await requestJson(`${API}/parcel/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await loadStats();
+    await loadParcels();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function resetFilters() {
+  ["filterSearch", "filterLocation", "filterDate"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("filterStatus").value = "";
+  document.getElementById("filterPriority").value = "";
+  loadParcels();
+}
+
+function exportCsv() {
+  if (currentParcels.length === 0) {
+    alert("No records to export");
+    return;
+  }
+
+  const headers = ["ID", "Sender", "Sender Phone", "Receiver", "Receiver Phone", "Status", "Office", "Date", "Route", "Driver", "Priority", "Failed Attempts"];
+  const rows = currentParcels.map(parcel => [
+    parcel.id, parcel.sname, parcel.sphone, parcel.rname, parcel.rphone,
+    parcel.status, parcel.office, parcel.date, parcel.route, parcel.driver,
+    parcel.priority == "2" ? "Urgent" : "Normal", parcel.failedAttempts
+  ]);
+  const csv = [headers, ...rows].map(row =>
+    row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(",")
+  ).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "parcel-records.csv";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+loadStats();
+</script>
+</body>
+</html>
