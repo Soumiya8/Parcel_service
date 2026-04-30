@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Parcel Dispatch System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="loader" class="loader hidden">Loading...</div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">📦</span>
+      <div>
+        <h1>Smart Parcel Dispatch System</h1>
+        <p>Fast dispatch, route tracking, and emergency delivery handling</p>
+      </div>
+      <span class="bike-icon" aria-hidden="true">🛵</span>
+    </div>
+    <div class="auth-area">
+      <span id="rolePill" class="role-pill">Login required</span>
+      <button class="btn danger logout-btn" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section id="loginView" class="login-view">
+      <div class="hero login-hero">
+        <div class="hero-copy">
+          <span class="kicker">Courier Control Portal</span>
+          <h2>Dispatch parcels with a cleaner, smarter workflow.</h2>
+          <p>Admins can manage parcel operations end to end. Users can quickly track deliveries with a tracking ID.</p>
+        </div>
+        <div class="hero-art" aria-label="Parcel delivery illustration">
+          <img src="https://img.icons8.com/fluency/240/parcel.png" alt="Parcel box">
+          <img src="https://img.icons8.com/fluency/240/scooter.png" alt="Delivery scooter">
+        </div>
+      </div>
+
+      <div id="loginAlertBox" class="alert hidden" role="status"></div>
+
+      <div class="login-grid">
+        <form id="adminLoginForm" class="card login-card">
+          <div class="card-title">
+            <div>
+              <span class="section-label">Admin Access</span>
+              <h3>Admin Login</h3>
+            </div>
+            <span class="card-icon">📦</span>
+          </div>
+          <label>Username<input name="username" autocomplete="username" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="btn primary" type="submit">Open Admin Dashboard</button>
+        </form>
+
+        <form id="userLoginForm" class="card login-card">
+          <div class="card-title">
+            <div>
+              <span class="section-label">Customer Access</span>
+              <h3>User Login</h3>
+            </div>
+            <span class="card-icon">🛵</span>
+          </div>
+          <label>Username<input name="username" autocomplete="username" required></label>
+          <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="btn secondary strong" type="submit">Open Tracking Page</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="adminView" class="hidden">
+      <section class="hero dashboard-hero">
+        <div class="hero-copy">
+          <span class="kicker">Admin Dashboard</span>
+          <h2>Manage delivery creation, tracking, and escalation.</h2>
+          <p>Create parcels, assign route drivers, update delivery progress, handle failures, and review every record.</p>
+        </div>
+        <div class="hero-art" aria-label="Parcel dashboard illustration">
+          <img src="https://img.icons8.com/fluency/240/cardboard-box.png" alt="Parcel package">
+          <img src="https://img.icons8.com/fluency/240/delivery.png" alt="Delivery rider">
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <div id="alertBox" class="alert hidden" role="status"></div>
+        <button id="refreshBtn" class="btn secondary" type="button">Refresh Data</button>
+      </div>
+
+      <section class="stats-grid" aria-label="Dashboard stats">
+        <article class="stat-card total">
+          <span class="stat-icon">📦</span>
+          <div><p>Total</p><strong id="statTotal">0</strong></div>
+        </article>
+        <article class="stat-card success">
+          <span class="stat-icon">✓</span>
+          <div><p>Delivered</p><strong id="statDelivered">0</strong></div>
+        </article>
+        <article class="stat-card warning">
+          <span class="stat-icon">…</span>
+          <div><p>Pending</p><strong id="statPending">0</strong></div>
+        </article>
+        <article class="stat-card danger">
+          <span class="stat-icon">!</span>
+          <div><p>Failed</p><strong id="statFailed">0</strong></div>
+        </article>
+        <article class="stat-card emergency">
+          <span class="stat-icon">⚠</span>
+          <div><p>Emergency</p><strong id="statEmergency">0</strong></div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <form id="addForm" class="card create-card" onsubmit="addParcel(event)">
+          <div class="card-title">
+            <div>
+              <span class="section-label">Create Parcel</span>
+              <h3>New Dispatch</h3>
+            </div>
+            <span class="card-icon">📦</span>
+          </div>
+
+          <fieldset>
+            <legend>Sender Details</legend>
+            <div class="form-grid two">
+              <label>Sender Name<input name="senderName" placeholder="Sender full name" required></label>
+              <label>Sender Contact<input name="senderContact" placeholder="Phone number" required></label>
+            </div>
+            <label>Sender Address<input name="senderAddress" placeholder="Pickup address" required></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Receiver Details</legend>
+            <div class="form-grid two">
+              <label>Receiver Name<input name="receiverName" placeholder="Receiver full name" required></label>
+              <label>Receiver Contact<input name="receiverContact" placeholder="Phone number" required></label>
+            </div>
+            <label>Receiver Address<input name="receiverAddress" placeholder="Delivery address" required></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Delivery Details</legend>
+            <div class="form-grid three">
+              <label>Destination Office
+                <input id="destinationInput" name="destinationOffice" list="locationOptions" placeholder="Search city" required>
+              </label>
+              <label>Delivery Date<input name="deliveryDate" placeholder="DD-MM-YYYY" required></label>
+              <label>Road Route
+                <input id="routeInput" name="roadRoute" list="routeOptions" placeholder="Select or type route" required>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Priority</legend>
+            <label>Priority
+              <select name="priority">
+                <option value="1">Normal</option>
+                <option value="2">Urgent</option>
+              </select>
+            </label>
+          </fieldset>
+
+          <button class="btn primary" type="submit">Create Parcel</button>
+          <div id="createMessage" class="form-message hidden" role="status"></div>
+        </form>
+
+        <aside class="side-stack">
+          <form id="adminTrackForm" class="card">
+            <div class="card-title">
+              <div>
+                <span class="section-label">Tracking</span>
+                <h3>Track Parcel</h3>
+              </div>
+              <span class="card-icon">🛵</span>
+            </div>
+            <div class="action-line">
+              <input name="trackingID" placeholder="Enter tracking ID" required>
+              <button class="btn primary" type="submit">Track</button>
+            </div>
+            <div id="adminTrackResult" class="parcel-card muted-card">Track a parcel to view timeline details.</div>
+          </form>
+
+          <form id="updateForm" class="card">
+            <div class="card-title">
+              <div>
+                <span class="section-label">Status</span>
+                <h3>Update Status</h3>
+              </div>
+              <span class="card-icon">✓</span>
+            </div>
+            <div class="action-line status-line">
+              <input name="trackingID" placeholder="Tracking ID" required>
+              <select name="status" required>
+                <option value="Dispatched">Dispatched</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Reached Destination Office">Reached Destination Office</option>
+                <option value="Out for Delivery">Out for Delivery</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+              <button class="btn primary" type="submit">Update</button>
+            </div>
+          </form>
+
+          <form id="failedForm" class="card emergency-card">
+            <div class="card-title">
+              <div>
+                <span class="section-label">Emergency</span>
+                <h3>Failed Delivery</h3>
+              </div>
+              <span class="card-icon">!</span>
+            </div>
+            <div class="action-line">
+              <input name="trackingID" placeholder="Tracking ID" required>
+              <button class="btn danger" type="submit">Record Failed Attempt</button>
+            </div>
+          </form>
+        </aside>
+      </section>
+
+      <section class="card records-card">
+        <div class="records-header">
+          <div>
+            <span class="section-label">Delivery Records</span>
+            <h3>Parcel Register</h3>
+            <p>Filter by destination office or delivery date.</p>
+          </div>
+          <button id="showAllBtn" class="btn secondary" type="button">Show All</button>
+        </div>
+
+        <div class="filters">
+          <form id="locationForm" class="action-line">
+            <input name="location" list="locationOptions" placeholder="Location, e.g. Chennai" required>
+            <button class="btn primary" type="submit">Filter Location</button>
+          </form>
+          <form id="dateForm" class="action-line">
+            <input name="date" placeholder="Date DD-MM-YYYY" required>
+            <button class="btn primary" type="submit">Filter Date</button>
+          </form>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Status</th>
+                <th>Office</th>
+                <th>Date</th>
+                <th>Route</th>
+                <th>Driver</th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="userView" class="hidden">
+      <section class="hero user-hero">
+        <div class="hero-copy">
+          <span class="kicker">Parcel Tracking</span>
+          <h2>Track your delivery in seconds.</h2>
+          <p>Enter the tracking ID shared by the courier team to view status, driver, route, and timeline.</p>
+        </div>
+        <div class="hero-art" aria-label="Parcel tracking illustration">
+          <img src="https://img.icons8.com/fluency/240/box.png" alt="Parcel box">
+          <img src="https://img.icons8.com/fluency/240/scooter.png" alt="Delivery scooter">
+        </div>
+      </section>
+
+      <div id="userAlertBox" class="alert hidden" role="status"></div>
+
+      <form id="userTrackForm" class="card user-track-card">
+        <div class="card-title">
+          <div>
+            <span class="section-label">Customer Tracking</span>
+            <h3>Track Your Parcel</h3>
+          </div>
+          <span class="card-icon">🛵</span>
+        </div>
+        <div class="action-line">
+          <input name="trackingID" placeholder="Enter tracking ID" required>
+          <button class="btn primary" type="submit">Track Parcel</button>
+        </div>
+        <div id="userTrackResult" class="parcel-card muted-card">Your parcel details will appear here.</div>
+      </form>
+    </section>
+
+    <datalist id="locationOptions">
+      <option value="Chennai"></option>
+      <option value="Coimbatore"></option>
+      <option value="Madurai"></option>
+      <option value="Trichy"></option>
+      <option value="Salem"></option>
+      <option value="Tirunelveli"></option>
+      <option value="Bangalore"></option>
+      <option value="Kochi"></option>
+      <option value="Hyderabad"></option>
+    </datalist>
+
+    <datalist id="routeOptions">
+      <option value="OMR Chennai"></option>
+      <option value="GST Road"></option>
+      <option value="ECR Road"></option>
+      <option value="Avinashi Road"></option>
+      <option value="Ring Road"></option>
+      <option value="Bypass Road"></option>
+      <option value="Five Roads"></option>
+      <option value="Electronic City Road"></option>
+      <option value="MG Road"></option>
+      <option value="Hitech City Road"></option>
+    </datalist>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

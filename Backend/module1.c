@@ -1,128 +1,166 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "parcel.h"
 
-struct Parcel* head = NULL;
-int currentID = 1000; // starting tracking number
+Parcel *head = NULL;
+int currentID = 1000;
 
-void InsertParcel() {
-    struct Parcel* temp = (struct Parcel*)malloc(sizeof(struct Parcel));
-
-    temp->trackingID = currentID++;
-
-    printf("Enter Sender Name: ");
-    scanf(" %[^\n]", temp->senderName);
-
-    printf("Enter Sender Address: ");
-    scanf(" %[^\n]", temp->senderAddress);
-
-    printf("Enter Sender Contact: ");
-    scanf(" %[^\n]", temp->senderContact);
-
-    printf("Enter Receiver Name: ");
-    scanf(" %[^\n]", temp->receiverName);
-
-    printf("Enter Receiver Address: ");
-    scanf(" %[^\n]", temp->receiverAddress);
-
-
-    printf("Enter Receiver Contact: ");
-    scanf(" %[^\n]", temp->receiverContact);
-
-    strcpy(temp->status, "Dispatched");
-
-    temp->next = head;
-    head = temp;
-
-    printf("\nParcel Created! Tracking ID: %d\n", temp->trackingID);
+static void CopyField(char *dest, size_t size, const char *src) {
+    if (src == NULL) {
+        src = "";
+    }
+    snprintf(dest, size, "%s", src);
+    CleanField(dest);
 }
-void trackParcel(int id) {
-    struct Parcel* temp = head;
 
-    while (temp != NULL) {
-        if (temp->trackingID == id) {
+int IsBlank(const char *value) {
+    if (value == NULL) {
+        return 1;
+    }
 
-            printf("\n\n      PARCEL DETAILS         \n\n");
-
-
-            printf("\nTracking ID: %d", temp->trackingID);
-
-            printf("\n\n--- Sender Details ---");
-            printf("\nName: %s", temp->senderName);
-            printf("\nAddress: %s", temp->senderAddress);
-            printf("\nContact: %s", temp->senderContact);
-
-            printf("\n\n--- Receiver Details ---");
-            printf("\nName: %s", temp->receiverName);
-            printf("\nAddress: %s", temp->receiverAddress);
-            printf("\nContact: %s", temp->receiverContact);
-
-            printf("\n\nStatus: %s\n", temp->status);
-
-            return;
+    while (*value) {
+        if (!isspace((unsigned char)*value)) {
+            return 0;
         }
-
-        temp = temp->next;
+        value++;
     }
 
-    printf("\n Parcel not found with Tracking ID: %d\n", id);
+    return 1;
 }
 
-void DisplayParcels() {
-    struct Parcel* temp = head;
+void CleanField(char *value) {
+    int i;
 
-    while (temp != NULL) {
-        printf("\nTracking ID: %d", temp->trackingID);
-        printf("\nSender: %s", temp->senderName);
-        printf("\nReceiver: %s", temp->receiverName);
-        printf("\nStatus: %s\n", temp->status);
-
-        temp = temp->next;
-    }
-}
-
-void SaveToFile() {
-    FILE *fp = fopen("data.txt", "a");
-
-    struct Parcel* temp = head;
-
-    while (temp != NULL) {
-        fprintf(fp, "%d|%s|%s|%s|%s|%s|%s|%s\n",
-            temp->trackingID,
-            temp->senderName,
-            temp->senderAddress,
-            temp->senderContact,
-            temp->receiverName,
-            temp->receiverAddress,
-            temp->receiverContact,
-            temp->status
-        );
-
-        temp = temp->next;
-    }
-
-    fclose(fp);
-    printf("\nData saved to file.\n");
-}
-void LoadFromFile() {
-    FILE *fp = fopen("data.txt", "r");
-
-    if (fp == NULL) {
-        printf("No existing data file found.\n");
+    if (value == NULL) {
         return;
     }
 
-    while (1) {
-        struct Parcel* temp = (struct Parcel*)malloc(sizeof(struct Parcel));
+    for (i = 0; value[i] != '\0'; i++) {
+        if (value[i] == '|' || value[i] == '\n' || value[i] == '\r') {
+            value[i] = ' ';
+        }
+    }
+}
+
+void JsonEscapePrint(const char *value) {
+    const unsigned char *p = (const unsigned char *)(value ? value : "");
+
+    putchar('"');
+    while (*p) {
+        if (*p == '"' || *p == '\\') {
+            putchar('\\');
+            putchar(*p);
+        } else if (*p == '\n') {
+            printf("\\n");
+        } else if (*p == '\r') {
+            printf("\\r");
+        } else if (*p == '\t') {
+            printf("\\t");
+        } else if (*p >= 32) {
+            putchar(*p);
+        }
+        p++;
+    }
+    putchar('"');
+}
+
+void PrintParcelJson(Parcel *parcel) {
+    printf("{\"trackingID\":%d,\"senderName\":", parcel->trackingID);
+    JsonEscapePrint(parcel->senderName);
+    printf(",\"senderAddress\":");
+    JsonEscapePrint(parcel->senderAddress);
+    printf(",\"senderContact\":");
+    JsonEscapePrint(parcel->senderContact);
+    printf(",\"receiverName\":");
+    JsonEscapePrint(parcel->receiverName);
+    printf(",\"receiverAddress\":");
+    JsonEscapePrint(parcel->receiverAddress);
+    printf(",\"receiverContact\":");
+    JsonEscapePrint(parcel->receiverContact);
+    printf(",\"status\":");
+    JsonEscapePrint(parcel->status);
+    printf(",\"destinationOffice\":");
+    JsonEscapePrint(parcel->destinationOffice);
+    printf(",\"deliveryDate\":");
+    JsonEscapePrint(parcel->deliveryDate);
+    printf(",\"roadRoute\":");
+    JsonEscapePrint(parcel->roadRoute);
+    printf(",\"driverName\":");
+    JsonEscapePrint(parcel->driverName);
+    printf(",\"priority\":%d,\"failedAttempts\":%d}", parcel->priority, parcel->failedAttempts);
+}
+
+Parcel *FindParcel(int id) {
+    Parcel *temp = head;
+
+    while (temp != NULL) {
+        if (temp->trackingID == id) {
+            return temp;
+        }
+        temp = temp->next;
+    }
+
+    return NULL;
+}
+
+void assignDriverByRoute(Parcel *parcel) {
+    Parcel *temp = head;
+    char routeUpper[50];
+    int i;
+
+    while (temp != NULL) {
+        if (strcmp(temp->roadRoute, parcel->roadRoute) == 0 &&
+            strcmp(temp->status, "Delivered") != 0 &&
+            !IsBlank(temp->driverName)) {
+            CopyField(parcel->driverName, sizeof(parcel->driverName), temp->driverName);
+            return;
+        }
+        temp = temp->next;
+    }
+
+    CopyField(routeUpper, sizeof(routeUpper), parcel->roadRoute);
+    for (i = 0; routeUpper[i] != '\0'; i++) {
+        routeUpper[i] = (char)toupper((unsigned char)routeUpper[i]);
+    }
+
+    if (strcmp(routeUpper, "OMR") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Arun");
+    } else if (strcmp(routeUpper, "ECR") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Bala");
+    } else if (strcmp(routeUpper, "GST") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Karthik");
+    } else if (strcmp(routeUpper, "PORUR") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Naveen");
+    } else {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Common Route");
+    }
+}
+
+void LoadFromFile(void) {
+    FILE *fp = fopen(DATA_FILE, "r");
+    char line[700];
+
+    if (fp == NULL) {
+        fp = fopen(DATA_FILE, "w");
+        if (fp != NULL) {
+            fclose(fp);
+        }
+        return;
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        Parcel *temp = (Parcel *)calloc(1, sizeof(Parcel));
+        int result;
 
         if (temp == NULL) {
-            printf("Memory allocation failed\n");
+            fclose(fp);
             return;
         }
 
-        int result = fscanf(fp,
-            "%d|%49[^|]|%99[^|]|%14[^|]|%49[^|]|%99[^|]|%14[^|]|%49[^\n]\n",
+        result = sscanf(line,
+            "%d|%49[^|]|%99[^|]|%19[^|]|%49[^|]|%99[^|]|%19[^|]|%59[^|]|%49[^|]|%19[^|]|%49[^|]|%49[^|]|%d|%d",
             &temp->trackingID,
             temp->senderName,
             temp->senderAddress,
@@ -130,24 +168,126 @@ void LoadFromFile() {
             temp->receiverName,
             temp->receiverAddress,
             temp->receiverContact,
-            temp->status
-        );
+            temp->status,
+            temp->destinationOffice,
+            temp->deliveryDate,
+            temp->roadRoute,
+            temp->driverName,
+            &temp->priority,
+            &temp->failedAttempts);
 
-        if (result != 8) {
+        if (result == 8) {
+            CopyField(temp->destinationOffice, sizeof(temp->destinationOffice), "Not Updated");
+            CopyField(temp->deliveryDate, sizeof(temp->deliveryDate), "Not Updated");
+            CopyField(temp->roadRoute, sizeof(temp->roadRoute), "General");
+            CopyField(temp->driverName, sizeof(temp->driverName), "Driver Common Route");
+            temp->priority = 1;
+            temp->failedAttempts = 0;
+        } else if (result != 14) {
             free(temp);
-            break;
+            continue;
         }
 
-        // insert node into linked list
         temp->next = head;
         head = temp;
 
-        // update tracking ID counter
         if (temp->trackingID >= currentID) {
             currentID = temp->trackingID + 1;
         }
     }
 
     fclose(fp);
-    printf("Data loaded successfully.\n");
+}
+
+void SaveToFile(void) {
+    FILE *fp = fopen(DATA_FILE, "w");
+    Parcel *temp = head;
+
+    if (fp == NULL) {
+        return;
+    }
+
+    while (temp != NULL) {
+        fprintf(fp, "%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%d|%d\n",
+                temp->trackingID,
+                temp->senderName,
+                temp->senderAddress,
+                temp->senderContact,
+                temp->receiverName,
+                temp->receiverAddress,
+                temp->receiverContact,
+                temp->status,
+                temp->destinationOffice,
+                temp->deliveryDate,
+                temp->roadRoute,
+                temp->driverName,
+                temp->priority,
+                temp->failedAttempts);
+        temp = temp->next;
+    }
+
+    fclose(fp);
+}
+
+void FreeParcels(void) {
+    Parcel *temp = head;
+
+    while (temp != NULL) {
+        Parcel *next = temp->next;
+        free(temp);
+        temp = next;
+    }
+
+    head = NULL;
+}
+
+void addParcel(char senderName[], char senderAddress[], char senderContact[],
+               char receiverName[], char receiverAddress[], char receiverContact[],
+               char destinationOffice[], char deliveryDate[], char roadRoute[],
+               int priority) {
+    Parcel *parcel;
+
+    if (IsBlank(senderName) || IsBlank(senderAddress) || IsBlank(senderContact) ||
+        IsBlank(receiverName) || IsBlank(receiverAddress) || IsBlank(receiverContact) ||
+        IsBlank(destinationOffice) || IsBlank(deliveryDate) || IsBlank(roadRoute)) {
+        printf("{\"success\":false,\"error\":\"All parcel fields are required\"}\n");
+        return;
+    }
+
+    parcel = (Parcel *)calloc(1, sizeof(Parcel));
+    if (parcel == NULL) {
+        printf("{\"success\":false,\"error\":\"Memory allocation failed\"}\n");
+        return;
+    }
+
+    parcel->trackingID = currentID++;
+    CopyField(parcel->senderName, sizeof(parcel->senderName), senderName);
+    CopyField(parcel->senderAddress, sizeof(parcel->senderAddress), senderAddress);
+    CopyField(parcel->senderContact, sizeof(parcel->senderContact), senderContact);
+    CopyField(parcel->receiverName, sizeof(parcel->receiverName), receiverName);
+    CopyField(parcel->receiverAddress, sizeof(parcel->receiverAddress), receiverAddress);
+    CopyField(parcel->receiverContact, sizeof(parcel->receiverContact), receiverContact);
+    CopyField(parcel->status, sizeof(parcel->status), "Dispatched");
+    CopyField(parcel->destinationOffice, sizeof(parcel->destinationOffice), destinationOffice);
+    CopyField(parcel->deliveryDate, sizeof(parcel->deliveryDate), deliveryDate);
+    CopyField(parcel->roadRoute, sizeof(parcel->roadRoute), roadRoute);
+    parcel->priority = priority == 2 ? 2 : 1;
+    parcel->failedAttempts = 0;
+
+    assignDriverByRoute(parcel);
+    parcel->next = head;
+    head = parcel;
+    SaveToFile();
+
+    printf("{\"success\":true,\"message\":\"Parcel created\",\"parcel\":");
+    PrintParcelJson(parcel);
+    printf("}\n");
+}
+
+void InsertParcel(void) {
+    printf("{\"success\":false,\"error\":\"Use the web form or CLI add command\"}\n");
+}
+
+void loginSystem(void) {
+    printf("{\"success\":true,\"message\":\"Login simulation skipped for API mode\"}\n");
 }
