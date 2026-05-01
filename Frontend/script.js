@@ -1,20 +1,3 @@
-const credentials = {
-  admin: { username: "admin", password: "1234" },
-  user: { username: "user", password: "1111" },
-};
-
-const routeSuggestions = {
-  chennai: ["OMR Chennai", "GST Road", "ECR Road"],
-  coimbatore: ["Avinashi Road"],
-  madurai: ["Ring Road"],
-  trichy: ["Bypass Road"],
-  salem: ["Five Roads"],
-  tirunelveli: ["Tirunelveli Main Road"],
-  bangalore: ["Electronic City Road"],
-  kochi: ["MG Road"],
-  hyderabad: ["Hitech City Road"],
-};
-
 const loginView = document.getElementById("loginView");
 const adminView = document.getElementById("adminView");
 const userView = document.getElementById("userView");
@@ -31,6 +14,7 @@ const createMessage = document.getElementById("createMessage");
 const destinationInput = document.getElementById("destinationInput");
 const routeInput = document.getElementById("routeInput");
 const routeOptions = document.getElementById("routeOptions");
+const phoneInputs = document.querySelectorAll(".phone-input");
 
 let currentRole = "";
 
@@ -79,7 +63,7 @@ function clearAlert() {
 
 function showError(error) {
   const fields = Array.isArray(error.fields) ? `: ${error.fields.join(", ")}` : "";
-  showAlert(`${error.error || "Request failed"}${fields}`, "error");
+  showAlert(`${error.error || error.message || "Request failed"}${fields}`, "error");
 }
 
 function statusClass(status) {
@@ -129,11 +113,16 @@ async function api(path, options = {}) {
   }
 }
 
-function login(role, form) {
+async function login(role, form) {
   const data = getFormData(form);
-  const expected = credentials[role];
 
-  if (data.username === expected.username && data.password === expected.password) {
+  try {
+    const payload = await postJson("/api/login", {
+      username: data.username,
+      password: data.password,
+      role,
+    });
+
     currentRole = role;
     loginView.classList.add("hidden");
     adminView.classList.toggle("hidden", role !== "admin");
@@ -148,11 +137,10 @@ function login(role, form) {
     } else {
       showAlert("Welcome user. Enter your tracking ID.", "success");
     }
-    return;
+  } catch (error) {
+    currentRole = "";
+    showAlert(error.message || error.error || "Invalid username or password", "error");
   }
-
-  currentRole = "";
-  showAlert("Invalid username or password.", "error");
 }
 
 function logout() {
@@ -203,17 +191,26 @@ function renderParcels(parcels = []) {
   }
 }
 
-function timelineClass(parcel, label) {
+function normalizeStatusHistory(parcel, history = []) {
+  const statuses = history.map((item) => item.status).filter(Boolean);
+  if (!statuses.includes(parcel.status)) {
+    statuses.push(parcel.status);
+  }
+  return statuses;
+}
+
+function timelineClass(parcel, label, history = []) {
   const status = parcel.status;
   if (status === "Emergency Escalation" || status === "Office Hold" || status.includes("Failed")) {
     return label.includes("Failed") || label.includes("Emergency") ? "timeline-step danger" : "timeline-step done";
   }
 
   const order = ["Dispatched", "In Transit", "Reached Destination Office", "Out for Delivery", "Delivered"];
+  const statuses = normalizeStatusHistory(parcel, history);
   const currentIndex = order.indexOf(status);
   const labelIndex = order.indexOf(label);
 
-  if (labelIndex < currentIndex || status === "Delivered") {
+  if (statuses.includes(label) && label !== status) {
     return "timeline-step done";
   }
   if (labelIndex === currentIndex) {
@@ -222,7 +219,7 @@ function timelineClass(parcel, label) {
   return "timeline-step";
 }
 
-function renderTimeline(parcel) {
+function renderTimeline(parcel, history = []) {
   const steps = [
     "Dispatched",
     "In Transit",
@@ -238,16 +235,27 @@ function renderTimeline(parcel) {
   return `
     <div class="timeline">
       ${steps.map((step) => `
-        <div class="${timelineClass(parcel, step)}">
+        <div class="${timelineClass(parcel, step, history)}">
           <span class="timeline-dot"></span>
           <span>${escapeHtml(step)}</span>
         </div>
       `).join("")}
     </div>
+    ${history.length ? `
+      <div class="history-list">
+        ${history.map((item) => `
+          <div>
+            <strong>${escapeHtml(item.status)}</strong>
+            <span>${escapeHtml(item.date || "")}</span>
+            <p>${escapeHtml(item.remarks || "")}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
   `;
 }
 
-function renderTrackedParcel(parcel, target) {
+function renderTrackedParcel(parcel, target, history = []) {
   target.className = "parcel-card";
   target.innerHTML = `
     <dl>
@@ -257,31 +265,37 @@ function renderTrackedParcel(parcel, target) {
       <dt>Status</dt><dd>${statusBadge(parcel.status)}</dd>
       <dt>Driver</dt><dd>${escapeHtml(parcel.driverName)}</dd>
       <dt>Route</dt><dd>${escapeHtml(parcel.roadRoute)}</dd>
-      <dt>Office</dt><dd>${escapeHtml(parcel.destinationOffice)}</dd>
+      <dt>Destination Office</dt><dd>${escapeHtml(parcel.destinationOffice)}</dd>
       <dt>Date</dt><dd>${escapeHtml(parcel.deliveryDate)}</dd>
+      <dt>Failed Attempts</dt><dd>${escapeHtml(parcel.failedAttempts)}</dd>
     </dl>
-    ${renderTimeline(parcel)}
+    ${renderTimeline(parcel, history)}
   `;
 }
 
-function updateRouteSuggestions() {
-  const city = destinationInput.value.trim().toLowerCase();
-  const suggestions = routeSuggestions[city] || [];
+async function updateRouteSuggestions() {
+  const city = destinationInput.value.trim();
+  let suggestions = [];
+
+  if (city) {
+    try {
+      const response = await fetch(`/api/routes/${encodeURIComponent(city)}`);
+      const payload = await response.json();
+      suggestions = payload.routes || [];
+    } catch (error) {
+      suggestions = [];
+    }
+  }
 
   routeOptions.innerHTML = "";
   const allRoutes = new Set([
     ...suggestions,
-    "OMR Chennai",
+    "OMR Road",
     "GST Road",
     "ECR Road",
     "Avinashi Road",
     "Ring Road",
     "Bypass Road",
-    "Five Roads",
-    "Electronic City Road",
-    "MG Road",
-    "Hitech City Road",
-    "Tirunelveli Main Road",
   ]);
 
   for (const route of allRoutes) {
@@ -328,7 +342,7 @@ async function trackFromForm(form, target) {
 
   try {
     const payload = await api(`/api/track/${encodeURIComponent(trackingID.trim())}`);
-    renderTrackedParcel(payload.parcel, target);
+    renderTrackedParcel(payload.parcel, target, payload.history || []);
     showAlert(`Parcel ${payload.parcel.trackingID} loaded.`);
   } catch (error) {
     target.className = "parcel-card muted-card";
@@ -355,12 +369,39 @@ destinationInput.addEventListener("input", updateRouteSuggestions);
 destinationInput.addEventListener("change", updateRouteSuggestions);
 updateRouteSuggestions();
 
+function normalizePhoneValue(value) {
+  const digits = String(value || "").replace(/\D/g, "").replace(/^91/, "").slice(0, 10);
+  return digits ? `+91${digits}` : "";
+}
+
+function validatePhoneNumber(value) {
+  return /^\+91\d{10}$/.test(value);
+}
+
+phoneInputs.forEach((input) => {
+  input.addEventListener("input", () => {
+    input.value = normalizePhoneValue(input.value);
+  });
+  input.addEventListener("blur", () => {
+    input.value = normalizePhoneValue(input.value);
+  });
+});
+
 async function addParcel(event) {
   event.preventDefault();
   const form = event.currentTarget;
   createMessage.className = "form-message hidden";
   createMessage.textContent = "";
   const formValues = getFormData(form);
+  formValues.senderContact = normalizePhoneValue(formValues.senderContact);
+  formValues.receiverContact = normalizePhoneValue(formValues.receiverContact);
+
+  if (!validatePhoneNumber(formValues.senderContact) || !validatePhoneNumber(formValues.receiverContact)) {
+    showCreateMessage("Phone number must be +91 followed by 10 digits", "error");
+    showAlert("Phone number must be +91 followed by 10 digits", "error");
+    return;
+  }
+
   const payload = {
     senderName: formValues.senderName,
     senderAddress: formValues.senderAddress,
@@ -391,7 +432,7 @@ async function addParcel(event) {
 
     form.reset();
     updateRouteSuggestions();
-    renderTrackedParcel(data.parcel, adminTrackResult);
+    renderTrackedParcel(data.parcel, adminTrackResult, data.history || []);
     await refreshAll(`Parcel ${data.trackingID} created and assigned to ${data.parcel.driverName}.`);
     showCreateMessage(`Parcel ${data.trackingID} created successfully.`, "success");
   } catch (error) {
@@ -422,7 +463,7 @@ document.getElementById("updateForm").addEventListener("submit", async (event) =
   try {
     const payload = await postJson("/api/update", getFormData(form));
     form.reset();
-    renderTrackedParcel(payload.parcel, adminTrackResult);
+    renderTrackedParcel(payload.parcel, adminTrackResult, payload.history || []);
     await refreshAll(`Parcel ${payload.parcel.trackingID} status updated.`);
   } catch (error) {
     showError(error);
@@ -437,7 +478,7 @@ document.getElementById("failedForm").addEventListener("submit", async (event) =
   try {
     const payload = await api(`/api/failed/${encodeURIComponent(trackingID.trim())}`, { method: "POST" });
     form.reset();
-    renderTrackedParcel(payload.parcel, adminTrackResult);
+    renderTrackedParcel(payload.parcel, adminTrackResult, payload.history || []);
     await refreshAll(`Failed attempt recorded. New status: ${payload.parcel.status}.`);
   } catch (error) {
     showError(error);

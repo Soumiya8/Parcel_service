@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "parcel.h"
 
 Parcel *head = NULL;
@@ -66,6 +67,124 @@ void JsonEscapePrint(const char *value) {
     putchar('"');
 }
 
+static void EnsureDataFiles(void) {
+    const char *files[] = { DATA_FILE, USERS_FILE, HISTORY_FILE, NOTIFICATIONS_FILE };
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        FILE *fp = fopen(files[i], "a");
+        if (fp != NULL) {
+            fclose(fp);
+        }
+    }
+}
+
+static void CurrentDateTime(char *buffer, size_t size) {
+    time_t now = time(NULL);
+    struct tm *local = localtime(&now);
+
+    if (local == NULL) {
+        snprintf(buffer, size, "Unknown");
+        return;
+    }
+
+    strftime(buffer, size, "%Y-%m-%d %H:%M", local);
+}
+
+int IsValidIndianPhone(const char *phone) {
+    int i;
+
+    if (phone == NULL || strlen(phone) != 13) {
+        return 0;
+    }
+
+    if (phone[0] != '+' || phone[1] != '9' || phone[2] != '1') {
+        return 0;
+    }
+
+    for (i = 3; i < 13; i++) {
+        if (!isdigit((unsigned char)phone[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+void AppendHistory(int trackingID, const char *status, const char *remarks) {
+    FILE *fp = fopen(HISTORY_FILE, "a");
+    char date[32];
+    char cleanStatus[60];
+    char cleanRemarks[160];
+
+    if (fp == NULL) {
+        return;
+    }
+
+    CurrentDateTime(date, sizeof(date));
+    CopyField(cleanStatus, sizeof(cleanStatus), status);
+    CopyField(cleanRemarks, sizeof(cleanRemarks), remarks);
+    fprintf(fp, "%d|%s|%s|%s\n", trackingID, cleanStatus, date, cleanRemarks);
+    fclose(fp);
+}
+
+void AppendNotification(Parcel *parcel, const char *message) {
+    FILE *fp = fopen(NOTIFICATIONS_FILE, "a");
+    char date[32];
+    char cleanMessage[180];
+
+    if (fp == NULL || parcel == NULL) {
+        return;
+    }
+
+    CurrentDateTime(date, sizeof(date));
+    CopyField(cleanMessage, sizeof(cleanMessage), message);
+    fprintf(fp, "%d|%s|%s|%s|%s\n",
+            parcel->trackingID,
+            parcel->receiverContact,
+            parcel->senderContact,
+            cleanMessage,
+            date);
+    fclose(fp);
+}
+
+void PrintParcelHistoryJson(int trackingID) {
+    FILE *fp = fopen(HISTORY_FILE, "r");
+    char line[500];
+    int first = 1;
+
+    printf("[");
+    if (fp == NULL) {
+        printf("]");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        int id = 0;
+        char status[60] = "";
+        char date[32] = "";
+        char remarks[180] = "";
+        int result = sscanf(line, "%d|%59[^|]|%31[^|]|%179[^\n]", &id, status, date, remarks);
+
+        if (result >= 3 && id == trackingID) {
+            if (!first) {
+                printf(",");
+            }
+            printf("{\"status\":");
+            JsonEscapePrint(status);
+            printf(",\"date\":");
+            JsonEscapePrint(date);
+            printf(",\"remarks\":");
+            JsonEscapePrint(result == 4 ? remarks : "");
+            printf("}");
+            first = 0;
+        }
+    }
+
+    fclose(fp);
+    printf("]");
+}
+
 void PrintParcelJson(Parcel *parcel) {
     printf("{\"trackingID\":%d,\"senderName\":", parcel->trackingID);
     JsonEscapePrint(parcel->senderName);
@@ -125,13 +244,17 @@ void assignDriverByRoute(Parcel *parcel) {
         routeUpper[i] = (char)toupper((unsigned char)routeUpper[i]);
     }
 
-    if (strcmp(routeUpper, "OMR") == 0) {
+    if (strcmp(routeUpper, "OMR") == 0 || strcmp(routeUpper, "OMR ROAD") == 0 || strcmp(routeUpper, "OMR CHENNAI") == 0) {
         CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Arun");
-    } else if (strcmp(routeUpper, "ECR") == 0) {
+    } else if (strcmp(routeUpper, "ECR") == 0 || strcmp(routeUpper, "ECR ROAD") == 0) {
         CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Bala");
-    } else if (strcmp(routeUpper, "GST") == 0) {
+    } else if (strcmp(routeUpper, "GST") == 0 || strcmp(routeUpper, "GST ROAD") == 0) {
         CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Karthik");
-    } else if (strcmp(routeUpper, "PORUR") == 0) {
+    } else if (strcmp(routeUpper, "AVINASHI ROAD") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Naveen");
+    } else if (strcmp(routeUpper, "RING ROAD") == 0) {
+        CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Meena");
+    } else if (strcmp(routeUpper, "BYPASS ROAD") == 0) {
         CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Naveen");
     } else {
         CopyField(parcel->driverName, sizeof(parcel->driverName), "Driver Common Route");
@@ -142,11 +265,25 @@ void LoadFromFile(void) {
     FILE *fp = fopen(DATA_FILE, "r");
     char line[700];
 
+    EnsureDataFiles();
+
     if (fp == NULL) {
-        fp = fopen(DATA_FILE, "w");
-        if (fp != NULL) {
-            fclose(fp);
+        FILE *legacy = fopen(LEGACY_DATA_FILE, "r");
+
+        if (legacy != NULL) {
+            fp = fopen(DATA_FILE, "w");
+            if (fp != NULL) {
+                while (fgets(line, sizeof(line), legacy) != NULL) {
+                    fputs(line, fp);
+                }
+                fclose(fp);
+            }
+            fclose(legacy);
         }
+        fp = fopen(DATA_FILE, "r");
+    }
+
+    if (fp == NULL) {
         return;
     }
 
@@ -254,6 +391,16 @@ void addParcel(char senderName[], char senderAddress[], char senderContact[],
         return;
     }
 
+    if (!IsValidIndianPhone(senderContact) || !IsValidIndianPhone(receiverContact)) {
+        printf("{\"success\":false,\"error\":\"Phone number must be +91 followed by 10 digits\"}\n");
+        return;
+    }
+
+    if (!isRouteValidForOffice(destinationOffice, roadRoute)) {
+        printf("{\"success\":false,\"error\":\"Selected route is not valid for the destination office\"}\n");
+        return;
+    }
+
     parcel = (Parcel *)calloc(1, sizeof(Parcel));
     if (parcel == NULL) {
         printf("{\"success\":false,\"error\":\"Memory allocation failed\"}\n");
@@ -278,6 +425,7 @@ void addParcel(char senderName[], char senderAddress[], char senderContact[],
     parcel->next = head;
     head = parcel;
     SaveToFile();
+    AppendHistory(parcel->trackingID, parcel->status, "Parcel created");
 
     printf("{\"success\":true,\"message\":\"Parcel created\",\"parcel\":");
     PrintParcelJson(parcel);

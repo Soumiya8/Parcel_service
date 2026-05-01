@@ -42,11 +42,14 @@ void updateStatus(char trackingID[], char newStatus[]) {
     }
 
     SaveToFile();
+    AppendHistory(parcel->trackingID, parcel->status, "Status updated");
 
     printf("{\"success\":true,\"message\":\"Status updated\",");
     notifySenderReceiver(parcel, "Parcel status updated.");
     printf(",\"parcel\":");
     PrintParcelJson(parcel);
+    printf(",\"history\":");
+    PrintParcelHistoryJson(parcel->trackingID);
     printf("}\n");
 }
 
@@ -71,11 +74,15 @@ void handleFailedDelivery(int id) {
     }
 
     SaveToFile();
+    AppendHistory(parcel->trackingID, parcel->status, "Failed delivery attempt recorded");
+    AppendNotification(parcel, "Failed delivery status updated.");
 
     printf("{\"success\":true,\"message\":\"Failed delivery recorded\",");
     notifySenderReceiver(parcel, "Failed delivery status updated.");
     printf(",\"parcel\":");
     PrintParcelJson(parcel);
+    printf(",\"history\":");
+    PrintParcelHistoryJson(parcel->trackingID);
     printf("}\n");
 }
 

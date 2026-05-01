@@ -70,6 +70,14 @@ int main(int argc, char *argv[]) {
         filterByDateValue(argv[2]);
     } else if (strcmp(argv[1], "stats") == 0) {
         printStats();
+    } else if (strcmp(argv[1], "routes") == 0) {
+        if (argc != 3) {
+            print_usage_error();
+            FreeParcels();
+            return 1;
+        }
+
+        suggestRoutesByOffice(argv[2]);
     } else {
         print_usage_error();
         FreeParcels();

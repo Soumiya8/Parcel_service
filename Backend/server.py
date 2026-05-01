@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -16,8 +17,26 @@ BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR.parent / "Frontend"
 EXE_PATH = BASE_DIR / "app.exe"
 DATA_PATH = BASE_DIR / "data.txt"
+PARCELS_PATH = BASE_DIR / "parcels.txt"
+USERS_PATH = BASE_DIR / "users.txt"
+HISTORY_PATH = BASE_DIR / "delivery_history.txt"
+NOTIFICATIONS_PATH = BASE_DIR / "notifications.txt"
 
-DATA_PATH.touch(exist_ok=True)
+PHONE_RE = re.compile(r"^\+91\d{10}$")
+
+
+def ensure_storage_files():
+    for path in (PARCELS_PATH, USERS_PATH, HISTORY_PATH, NOTIFICATIONS_PATH):
+        path.touch(exist_ok=True)
+
+    if PARCELS_PATH.stat().st_size == 0 and DATA_PATH.exists() and DATA_PATH.stat().st_size > 0:
+        PARCELS_PATH.write_text(DATA_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+
+    if USERS_PATH.stat().st_size == 0:
+        USERS_PATH.write_text("admin|admin123|admin\nuser|user123|user\n", encoding="utf-8")
+
+
+ensure_storage_files()
 
 
 def clean(value):
@@ -25,7 +44,7 @@ def clean(value):
 
 
 def run_c(*args):
-    DATA_PATH.touch(exist_ok=True)
+    ensure_storage_files()
 
     if not EXE_PATH.exists():
         return {"success": False, "error": "app.exe not found. Compile the C backend first."}, 500
@@ -67,6 +86,26 @@ def validate_required(data, fields):
     return None
 
 
+def login_from_file(data):
+    username = clean(data.get("username"))
+    password = clean(data.get("password"))
+    role = clean(data.get("role"))
+
+    if not username or not password or role not in {"admin", "user"}:
+        return {"success": False, "message": "Invalid username or password"}, 401
+
+    ensure_storage_files()
+    for line in USERS_PATH.read_text(encoding="utf-8").splitlines():
+        parts = line.strip().split("|")
+        if len(parts) != 3:
+            continue
+        saved_username, saved_password, saved_role = parts
+        if username == saved_username and password == saved_password and role == saved_role:
+            return {"success": True, "role": saved_role}, 200
+
+    return {"success": False, "message": "Invalid username or password"}, 401
+
+
 def handle_api(method, path, data=None):
     data = data or {}
 
@@ -75,6 +114,9 @@ def handle_api(method, path, data=None):
 
     if method == "GET" and path == "/api/list":
         return run_c("list", "all", "all")
+
+    if method == "POST" and path == "/api/login":
+        return login_from_file(data)
 
     if method == "GET" and path.startswith("/api/track/"):
         return run_c("track", path.removeprefix("/api/track/"))
@@ -116,6 +158,9 @@ def handle_api(method, path, data=None):
         if priority not in {"1", "2"}:
             return {"success": False, "error": "Priority must be 1 or 2", "fields": ["priority"]}, 400
 
+        if not PHONE_RE.fullmatch(parcel["senderContact"]) or not PHONE_RE.fullmatch(parcel["receiverContact"]):
+            return {"success": False, "error": "Phone number must be +91 followed by 10 digits"}, 400
+
         payload, status = run_c(
             "add",
             parcel["senderName"],
@@ -155,6 +200,9 @@ def handle_api(method, path, data=None):
 
     if method == "GET" and path.startswith("/api/filter/date/"):
         return run_c("filter-date", path.removeprefix("/api/filter/date/"))
+
+    if method == "GET" and path.startswith("/api/routes/"):
+        return run_c("routes", path.removeprefix("/api/routes/"))
 
     return {"success": False, "error": "API endpoint not found"}, 404
 

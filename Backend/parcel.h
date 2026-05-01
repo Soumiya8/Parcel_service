@@ -3,7 +3,11 @@
 
 #include <stdio.h>
 
-#define DATA_FILE "data.txt"
+#define DATA_FILE "parcels.txt"
+#define LEGACY_DATA_FILE "data.txt"
+#define USERS_FILE "users.txt"
+#define HISTORY_FILE "delivery_history.txt"
+#define NOTIFICATIONS_FILE "notifications.txt"
 #define MAX_FIELD 100
 
 typedef struct Parcel {
@@ -24,6 +28,12 @@ typedef struct Parcel {
     struct Parcel *next;
 } Parcel;
 
+typedef struct RouteNode {
+    char name[50];
+    struct RouteNode *firstChild;
+    struct RouteNode *nextSibling;
+} RouteNode;
+
 extern Parcel *head;
 extern int currentID;
 
@@ -34,8 +44,12 @@ int IsBlank(const char *value);
 void CleanField(char *value);
 void JsonEscapePrint(const char *value);
 void PrintParcelJson(Parcel *parcel);
+void PrintParcelHistoryJson(int trackingID);
 Parcel *FindParcel(int id);
 void assignDriverByRoute(Parcel *parcel);
+int IsValidIndianPhone(const char *phone);
+void AppendHistory(int trackingID, const char *status, const char *remarks);
+void AppendNotification(Parcel *parcel, const char *message);
 
 void addParcel(char senderName[], char senderAddress[], char senderContact[],
                char receiverName[], char receiverAddress[], char receiverContact[],
@@ -50,6 +64,13 @@ void listParcels(char date[], char location[]);
 void filterByLocationValue(char location[]);
 void filterByDateValue(char date[]);
 void printStats(void);
+RouteNode *createRouteNode(const char *name);
+void addChild(RouteNode *parent, RouteNode *child);
+RouteNode *buildRouteTree(void);
+RouteNode *searchRoute(RouteNode *root, const char *name);
+int isRouteValidForOffice(const char *office, const char *routeName);
+void suggestRoutesByOffice(char office[]);
+void freeRouteTree(RouteNode *root);
 
 /* Simple interactive names kept for beginner C menu compatibility. */
 void InsertParcel(void);

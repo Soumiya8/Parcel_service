@@ -20,6 +20,8 @@ void searchParcel(char trackingID[]) {
 
     printf("{\"success\":true,\"parcel\":");
     PrintParcelJson(parcel);
+    printf(",\"history\":");
+    PrintParcelHistoryJson(parcel->trackingID);
     printf("}\n");
 }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Parcel Dispatch System</title>
+  <title>WeDeliver</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
     <div class="brand">
       <span class="brand-icon" aria-hidden="true">📦</span>
       <div>
-        <h1>Smart Parcel Dispatch System</h1>
-        <p>Fast dispatch, route tracking, and emergency delivery handling</p>
+        <h1>WeDeliver</h1>
+        <p>We move parcels with speed, care, and trust.</p>
       </div>
       <span class="bike-icon" aria-hidden="true">🛵</span>
     </div>
@@ -31,8 +31,8 @@
     <section id="loginView" class="login-view">
       <div class="hero login-hero">
         <div class="hero-copy">
-          <span class="kicker">Courier Control Portal</span>
-          <h2>Dispatch parcels with a cleaner, smarter workflow.</h2>
+          <span class="kicker">WeDeliver Portal</span>
+          <h2>Move parcels with speed, care, and trust.</h2>
           <p>Admins can manage parcel operations end to end. Users can quickly track deliveries with a tracking ID.</p>
         </div>
         <div class="hero-art" aria-label="Parcel delivery illustration">
@@ -127,7 +127,7 @@
             <legend>Sender Details</legend>
             <div class="form-grid two">
               <label>Sender Name<input name="senderName" placeholder="Sender full name" required></label>
-              <label>Sender Contact<input name="senderContact" placeholder="Phone number" required></label>
+              <label>Sender Contact<input class="phone-input" name="senderContact" placeholder="+91XXXXXXXXXX" inputmode="numeric" maxlength="13" required></label>
             </div>
             <label>Sender Address<input name="senderAddress" placeholder="Pickup address" required></label>
           </fieldset>
@@ -136,7 +136,7 @@
             <legend>Receiver Details</legend>
             <div class="form-grid two">
               <label>Receiver Name<input name="receiverName" placeholder="Receiver full name" required></label>
-              <label>Receiver Contact<input name="receiverContact" placeholder="Phone number" required></label>
+              <label>Receiver Contact<input class="phone-input" name="receiverContact" placeholder="+91XXXXXXXXXX" inputmode="numeric" maxlength="13" required></label>
             </div>
             <label>Receiver Address<input name="receiverAddress" placeholder="Delivery address" required></label>
           </fieldset>
@@ -149,7 +149,7 @@
               </label>
               <label>Delivery Date<input name="deliveryDate" placeholder="DD-MM-YYYY" required></label>
               <label>Road Route
-                <input id="routeInput" name="roadRoute" list="routeOptions" placeholder="Select or type route" required>
+                <input id="routeInput" name="roadRoute" list="routeOptions" placeholder="Select route" required>
               </label>
             </div>
           </fieldset>
@@ -298,24 +298,15 @@
       <option value="Coimbatore"></option>
       <option value="Madurai"></option>
       <option value="Trichy"></option>
-      <option value="Salem"></option>
-      <option value="Tirunelveli"></option>
-      <option value="Bangalore"></option>
-      <option value="Kochi"></option>
-      <option value="Hyderabad"></option>
     </datalist>
 
     <datalist id="routeOptions">
-      <option value="OMR Chennai"></option>
+      <option value="OMR Road"></option>
       <option value="GST Road"></option>
       <option value="ECR Road"></option>
       <option value="Avinashi Road"></option>
       <option value="Ring Road"></option>
       <option value="Bypass Road"></option>
-      <option value="Five Roads"></option>
-      <option value="Electronic City Road"></option>
-      <option value="MG Road"></option>
-      <option value="Hitech City Road"></option>
     </datalist>
   </main>
 

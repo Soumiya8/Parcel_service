@@ -1,0 +1,4 @@
+1006|Dispatched|2026-05-01 09:49|Parcel created
+1006|In Transit|2026-05-01 09:49|Status updated
+1006|Delivery Failed - Rescheduled|2026-05-01 09:49|Failed delivery attempt recorded
+1007|Dispatched|2026-05-01 09:51|Parcel created

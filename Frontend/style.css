@@ -462,30 +462,52 @@ select:focus {
 }
 
 .timeline {
-  display: grid;
-  gap: 10px;
+  position: relative;
+  display: flex;
+  gap: 0;
+  justify-content: space-between;
   margin-top: 16px;
-  padding-top: 16px;
+  padding: 24px 4px 8px;
   border-top: 1px solid var(--border);
 }
 
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 33px;
+  height: 8px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    90deg,
+    #9ca3af 0 22px,
+    #ffffff 22px 30px
+  );
+  box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.08);
+}
+
 .timeline-step {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 24px 1fr;
-  gap: 10px;
-  align-items: start;
+  justify-items: center;
+  gap: 8px;
+  width: 110px;
   color: var(--muted);
+  text-align: center;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .timeline-dot {
-  width: 16px;
-  height: 16px;
-  margin-top: 3px;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
   border: 3px solid #ffffff;
   border-radius: 50%;
   background: #d1d5db;
-  box-shadow: 0 0 0 1px var(--border);
+  box-shadow: 0 0 0 2px var(--border), 0 6px 14px rgba(17, 24, 39, 0.12);
 }
 
 .timeline-step.done .timeline-dot {
@@ -498,6 +520,36 @@ select:focus {
 
 .timeline-step.danger .timeline-dot {
   background: var(--danger);
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.history-list div {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto;
+  gap: 4px 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.history-list span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.history-list p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .records-card {
@@ -689,6 +741,38 @@ tbody tr:hover {
   }
 
   .parcel-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline {
+    align-items: start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 0 0 8px;
+  }
+
+  .timeline::before {
+    left: 20px;
+    right: auto;
+    top: 20px;
+    bottom: 18px;
+    width: 8px;
+    height: auto;
+    background: repeating-linear-gradient(
+      180deg,
+      #9ca3af 0 22px,
+      #ffffff 22px 30px
+    );
+  }
+
+  .timeline-step {
+    grid-template-columns: 32px 1fr;
+    justify-items: start;
+    width: 100%;
+    text-align: left;
+  }
+
+  .history-list div {
     grid-template-columns: 1fr;
   }
 }
